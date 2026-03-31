@@ -1,0 +1,136 @@
+{
+  "_meta": {
+    "description": "IOC definitions for GitLab supply-chain scanner. Add new IOCs here without modifying scanner code.",
+    "version": "1.0.0",
+    "last_updated": "2026-03-31",
+    "maintainer": "Cyber Security Team",
+    "format_notes": {
+      "pattern": "Simple substring to search for (used as fallback and for GitLab search API)",
+      "context": "Optional regex for precise matching. If present, the pattern must match this regex within the file content to count as a hit. Prevents false positives from version strings matching unrelated packages.",
+      "files": "List of filenames or glob patterns (e.g. *.py) to scan. Globs are resolved via the GitLab repository tree API.",
+      "severity": "CRITICAL or HIGH. CRITICAL = known malicious, HIGH = suspicious / needs investigation.",
+      "references": "URLs to advisories, blog posts, or CVEs for analyst context."
+    }
+  },
+  "iocs": [
+    {
+      "attack": "Axios RAT Supply Chain (31 Mar 2026)",
+      "indicator": "axios@1.14.1",
+      "pattern": "1.14.1",
+      "context": "\"axios\"\\s*:\\s*\"[^\"]*1\\.14\\.1|axios@1\\.14\\.1|/axios[\":].*1\\.14\\.1|\"axios\"\\s*:\\s*\\{[^}]*\"version\"\\s*:\\s*\"1\\.14\\.1|axios/-/axios-1\\.14\\.1",
+      "files": ["package.json", "package-lock.json", "yarn.lock", "pnpm-lock.yaml"],
+      "severity": "CRITICAL",
+      "note": "Malicious axios version containing cross-platform RAT dropper. Published via compromised npm maintainer credentials (jasonsaayman). Payload contacts C2 and delivers platform-specific second-stage.",
+      "references": [
+        "https://thehackernews.com/2026/03/axios-supply-chain-attack-pushes-cross.html",
+        "https://socket.dev/blog/axios-npm-package-compromised"
+      ]
+    },
+    {
+      "attack": "Axios RAT Supply Chain (31 Mar 2026)",
+      "indicator": "axios@0.30.4",
+      "pattern": "0.30.4",
+      "context": "\"axios\"\\s*:\\s*\"[^\"]*0\\.30\\.4|axios@0\\.30\\.4|/axios[\":].*0\\.30\\.4|\"axios\"\\s*:\\s*\\{[^}]*\"version\"\\s*:\\s*\"0\\.30\\.4|axios/-/axios-0\\.30\\.4",
+      "files": ["package.json", "package-lock.json", "yarn.lock", "pnpm-lock.yaml"],
+      "severity": "CRITICAL",
+      "note": "Malicious axios version containing cross-platform RAT dropper. Published via compromised npm maintainer credentials.",
+      "references": [
+        "https://thehackernews.com/2026/03/axios-supply-chain-attack-pushes-cross.html",
+        "https://socket.dev/blog/axios-npm-package-compromised"
+      ]
+    },
+    {
+      "attack": "Axios RAT Supply Chain (31 Mar 2026)",
+      "indicator": "plain-crypto-js (malicious dependency)",
+      "pattern": "plain-crypto-js",
+      "context": "plain-crypto-js",
+      "files": ["package.json", "package-lock.json", "yarn.lock", "pnpm-lock.yaml"],
+      "severity": "CRITICAL",
+      "note": "Fake npm package injected by compromised axios. Executes a postinstall script acting as a cross-platform RAT dropper. Self-deletes after execution.",
+      "references": [
+        "https://socket.dev/blog/axios-npm-package-compromised"
+      ]
+    },
+    {
+      "attack": "Axios RAT Supply Chain (31 Mar 2026)",
+      "indicator": "sfrclak.com (C2 domain)",
+      "pattern": "sfrclak.com",
+      "context": "sfrclak\\.com",
+      "files": ["package.json", "package-lock.json", ".env", "*.config.js", "*.config.ts", "*.js", "*.ts"],
+      "severity": "CRITICAL",
+      "note": "C2 callback domain for Axios RAT payload. If found, treat as ACTIVE compromise -- initiate incident response immediately.",
+      "references": []
+    },
+    {
+      "attack": "LiteLLM Backdoor Supply Chain (24 Mar 2026)",
+      "indicator": "litellm==1.82.7",
+      "pattern": "1.82.7",
+      "context": "litellm[=~><! ]*1\\.82\\.7|litellm[\\s\\S]{0,80}version[\\s\\S]{0,20}1\\.82\\.7|\"litellm\"[\\s\\S]{0,80}1\\.82\\.7",
+      "files": ["requirements.txt", "requirements-dev.txt", "requirements-prod.txt", "poetry.lock", "pyproject.toml", "Pipfile.lock", "Pipfile", "setup.py", "setup.cfg"],
+      "severity": "CRITICAL",
+      "note": "Malicious LiteLLM version backdoored by TeamPCP via Trivy CI/CD compromise. Installs persistence PTH file, steals credentials and auth tokens.",
+      "references": [
+        "https://thehackernews.com/2026/03/teampcp-backdoors-litellm-versions.html",
+        "https://www.bleepingcomputer.com/news/security/popular-litellm-pypi-package-compromised-in-teampcp-supply-chain-attack/"
+      ]
+    },
+    {
+      "attack": "LiteLLM Backdoor Supply Chain (24 Mar 2026)",
+      "indicator": "litellm==1.82.8",
+      "pattern": "1.82.8",
+      "context": "litellm[=~><! ]*1\\.82\\.8|litellm[\\s\\S]{0,80}version[\\s\\S]{0,20}1\\.82\\.8|\"litellm\"[\\s\\S]{0,80}1\\.82\\.8",
+      "files": ["requirements.txt", "requirements-dev.txt", "requirements-prod.txt", "poetry.lock", "pyproject.toml", "Pipfile.lock", "Pipfile", "setup.py", "setup.cfg"],
+      "severity": "CRITICAL",
+      "note": "Malicious LiteLLM version backdoored by TeamPCP via Trivy CI/CD compromise. Installs persistence PTH file, steals credentials and auth tokens.",
+      "references": [
+        "https://thehackernews.com/2026/03/teampcp-backdoors-litellm-versions.html"
+      ]
+    },
+    {
+      "attack": "LiteLLM Backdoor Supply Chain (24 Mar 2026)",
+      "indicator": "litellm_init.pth (persistence file)",
+      "pattern": "litellm_init.pth",
+      "context": "litellm_init\\.pth",
+      "files": ["Dockerfile", "docker-compose.yml", "docker-compose.yaml", "*.py", "setup.py", "setup.cfg", "Makefile"],
+      "severity": "CRITICAL",
+      "note": "Persistence PTH file dropped by malicious LiteLLM. Executes arbitrary code on Python interpreter startup. Presence indicates ACTIVE compromise.",
+      "references": []
+    },
+    {
+      "attack": "LiteLLM Backdoor Supply Chain (24 Mar 2026)",
+      "indicator": "checkmarx.zone (C2 domain)",
+      "pattern": "checkmarx.zone",
+      "context": "checkmarx\\.zone",
+      "files": ["requirements.txt", "poetry.lock", "pyproject.toml", ".env", "*.py", "Dockerfile"],
+      "severity": "CRITICAL",
+      "note": "C2 callback domain for LiteLLM backdoor. If found, treat as ACTIVE compromise -- initiate incident response immediately.",
+      "references": []
+    },
+    {
+      "attack": "Trivy GitHub Actions Compromise (20 Mar 2026)",
+      "indicator": "aquasecurity/trivy-action (compromised tags)",
+      "pattern": "aquasecurity/trivy-action",
+      "context": "aquasecurity/trivy-action",
+      "files": [".github/workflows/*.yml", ".github/workflows/*.yaml", ".gitlab-ci.yml"],
+      "severity": "HIGH",
+      "note": "Trivy GitHub Action had 75 tags hijacked by TeamPCP to steal CI/CD secrets. Verify action is pinned to a known-good full commit SHA, not a mutable tag like @v1 or @latest.",
+      "references": [
+        "https://thehackernews.com/2026/03/trivy-security-scanner-github-actions.html",
+        "https://socket.dev/blog/trivy-under-attack-again-github-actions-compromise"
+      ]
+    },
+    {
+      "attack": "Telnyx Python SDK Compromise (27 Mar 2026)",
+      "indicator": "telnyx (compromised PyPI package)",
+      "pattern": "telnyx",
+      "context": "telnyx[=~><! \\[]|\"telnyx\"|'telnyx'",
+      "files": ["requirements.txt", "requirements-dev.txt", "pyproject.toml", "Pipfile", "setup.py", "poetry.lock"],
+      "severity": "HIGH",
+      "note": "Telnyx Python SDK was compromised by TeamPCP. Credential-stealing malware hidden inside WAV audio files. Verify installed version against PyPI advisories.",
+      "references": [
+        "https://socket.dev/blog/telnyx-python-sdk-compromised",
+        "https://www.bleepingcomputer.com/news/security/backdoored-telnyx-pypi-package-pushes-malware-hidden-in-wav-audio/"
+      ]
+    }
+  ]
+}
